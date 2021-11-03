@@ -22,6 +22,7 @@
 #include "main.h"
 #include "usart.h"
 #include "gpio.h"
+#include "string.h"
 
 
 void SystemClock_Config(void);
@@ -50,7 +51,7 @@ int main(void)
 	  //LL_USART_TransmitData8(USART2, tx_data++);
 	  //tx_data == ('z' + 1) ? tx_data = 'a' : tx_data;
 
-	  LL_mDelay(50);
+	  //LL_mDelay(50);
   }
 }
 
@@ -92,9 +93,35 @@ void SystemClock_Config(void)
 
 void process_serial_data(uint8_t ch)
 {
-	static uint8_t count = 0;
+	if(ch == '\r') return; //odstranenie znaku, ktory sa vygeneruje po stlaceni enteru v puTTY
 
-	if(ch == 'a')
+	static char readed_text[20] = "";
+	char new_letter[2] = {ch,'\0'};
+
+	strcat(readed_text,new_letter);
+
+	if(strncmp("ledON",readed_text,strlen(readed_text)) == 0)
+	{
+		if(strlen("ledON") == strlen(readed_text))
+		{
+			LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
+			strcpy(readed_text,"");
+		}
+		return;
+	}
+
+	if(strncmp("ledOFF",readed_text,strlen(readed_text)) == 0)
+		{
+			if(strlen("ledOFF") == strlen(readed_text))
+			{
+				LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
+				strcpy(readed_text,"");
+			}
+			return;
+		}
+
+	strcpy(readed_text,"");
+	/*if(ch == 'a')
 	{
 		count++;
 
@@ -112,7 +139,7 @@ void process_serial_data(uint8_t ch)
 			count = 0;
 			return;
 		}
-	}
+	}*/
 }
 
 
