@@ -45,9 +45,20 @@ int main(void)
   USART2_RegisterCallback(process_serial_data);
 
   //char tx_data = 'a';
-
+  char * state_on = "LedOn";
+  char * state_off = "LedOff";
   while (1)
   {
+
+	  if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3))){
+
+		  LL_USART_TransmitData8(USART2,state_on);
+	  }
+	  else {
+		  LL_USART_TransmitData8(USART2,state_off);
+	  }
+
+	  LL_mDelay(1000);
 	  //LL_USART_TransmitData8(USART2, tx_data++);
 	  //tx_data == ('z' + 1) ? tx_data = 'a' : tx_data;
 
