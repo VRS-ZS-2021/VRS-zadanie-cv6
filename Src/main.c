@@ -45,24 +45,27 @@ int main(void)
   USART2_RegisterCallback(process_serial_data);
 
   //char tx_data = 'a';
-  char * state_on = "LedOn";
-  char * state_off = "LedOff";
+  char state_on[15];
+  strcpy(state_on,"LED is ON\n\r");
+  char state_off[15];
+  strcpy(state_off,"LED is OFF\n\r");
   while (1)
   {
 
-	  if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3))){
-
-		  LL_USART_TransmitData8(USART2,state_on);
+	  if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3))) {
+		  for (int i = 0; i < strlen(state_on); i++) {
+			  LL_USART_TransmitData8(USART2,state_on[i]);
+			  LL_mDelay(5);
+		  }
 	  }
 	  else {
-		  LL_USART_TransmitData8(USART2,state_off);
+		  for (int i = 0; i < strlen(state_off); i++) {
+			  LL_USART_TransmitData8(USART2,state_off[i]);
+			  LL_mDelay(5);
+		  }
 	  }
 
 	  LL_mDelay(1000);
-	  //LL_USART_TransmitData8(USART2, tx_data++);
-	  //tx_data == ('z' + 1) ? tx_data = 'a' : tx_data;
-
-	  //LL_mDelay(50);
   }
 }
 
@@ -111,9 +114,9 @@ void process_serial_data(uint8_t ch)
 
 	strcat(readed_text,new_letter);
 
-	if(strncmp("ledON",readed_text,strlen(readed_text)) == 0)
+	if(strncmp("ledON",readed_text,strlen(readed_text)) == 0) //nacitany retazec je prefix ledON
 	{
-		if(strlen("ledON") == strlen(readed_text))
+		if(strlen("ledON") == strlen(readed_text)) //nacitany retazec je ledON
 		{
 			LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
 			strcpy(readed_text,"");
@@ -121,9 +124,9 @@ void process_serial_data(uint8_t ch)
 		return;
 	}
 
-	if(strncmp("ledOFF",readed_text,strlen(readed_text)) == 0)
+	if(strncmp("ledOFF",readed_text,strlen(readed_text)) == 0) //nacitany retazec je prefix ledOFF
 		{
-			if(strlen("ledOFF") == strlen(readed_text))
+			if(strlen("ledOFF") == strlen(readed_text)) //nacitany retazec je lenOFF
 			{
 				LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
 				strcpy(readed_text,"");
@@ -131,26 +134,7 @@ void process_serial_data(uint8_t ch)
 			return;
 		}
 
-	strcpy(readed_text,"");
-	/*if(ch == 'a')
-	{
-		count++;
-
-		if(count >= 3)
-		{
-			if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3)) >> 3)
-			{
-				LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_3);
-			}
-			else
-			{
-				LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_3);
-			}
-
-			count = 0;
-			return;
-		}
-	}*/
+	strcpy(readed_text,""); //nacitany retazec nie je prefix ani jedneho prikazu
 }
 
 
