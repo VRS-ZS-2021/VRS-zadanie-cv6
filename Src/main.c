@@ -44,26 +44,25 @@ int main(void)
 
   USART2_RegisterCallback(process_serial_data);
 
-  //char tx_data = 'a';
   char state_on[15];
   strcpy(state_on,"LED is ON\n\r");
   char state_off[15];
   strcpy(state_off,"LED is OFF\n\r");
+  char actual_state[15];
   while (1)
   {
-
-	  if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3))) {
-		  for (int i = 0; i < strlen(state_on); i++) {
-			  LL_USART_TransmitData8(USART2,state_on[i]);
-			  LL_mDelay(5);
-		  }
+	  if((LL_GPIO_ReadInputPort(GPIOB) & (1 << 3))) { //nastavenie retazca na vypisanie
+		  strcpy(actual_state,state_on);
 	  }
 	  else {
-		  for (int i = 0; i < strlen(state_off); i++) {
-			  LL_USART_TransmitData8(USART2,state_off[i]);
-			  LL_mDelay(5);
-		  }
+		  strcpy(actual_state,state_off);
 	  }
+
+	  for (int i = 0; i < strlen(actual_state); i++) {
+		  LL_USART_TransmitData8(USART2,actual_state[i]);
+	  	  while(!LL_USART_IsActiveFlag_TC(USART2)); //Cakanie na odoslanie znaku
+	  	  //LL_USART_ClearFlag_TC(USART2); //Odstranenie flagu
+	  	  }
 
 	  LL_mDelay(1000);
   }
